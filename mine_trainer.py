@@ -6,13 +6,19 @@ import torch.optim as optim
 import numpy as np
 
 class MineTrainer:
-    def __init__(self, rho, input_dim, batch_size, num_steps, mine_loss, lr=1e-4):
+    def __init__(self, rho, input_dim, batch_size, num_steps, mine_loss, lr=1e-4, alpha=1):
         self.rho = rho
         self.input_dim = input_dim
         self.batch_size = batch_size
+        self.alpha = alpha
         self.num_steps = num_steps
         self.lr = lr
         self.mine_loss_obj = mine_loss
+        
+    def mi(self, alpha):
+        # alpha > 0, alpha != 1
+        return 0.5 * self.input_dim * np.log(alpha / (1 - self.rho**2))
+
 
     def train(self):
         """
@@ -20,7 +26,7 @@ class MineTrainer:
         """
         
         # Calculate True MI for comparison: I(X;Z) = -d/2 * log(1 - rho^2)
-        true_mi = -self.input_dim / 2 * np.log(1 - self.rho**2)
+        true_mi = self.mi(self.alpha)
 
         # Model Setup
         model = T(input_dim=self.input_dim)
